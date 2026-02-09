@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Her</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@100;300;400;600&display=swap');
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.7); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .glow-text {
+            text-shadow: 0 0 15px rgba(255, 105, 180, 0.7), 0 0 30px rgba(255, 105, 180, 0.3);
+            letter-spacing: 0.05em;
+        }
+
+        /* IMPROVED GLOW BUTTONS */
+        .btn-glow {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 105, 180, 0.3);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            backdrop-filter: blur(8px);
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-glow:hover {
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.4), inset 0 0 10px rgba(255, 105, 180, 0.2);
+            border-color: #ff69b4;
+            background: rgba(255, 105, 180, 0.15);
+            transform: translateY(-2px);
+            color: #ffdaea;
+        }
+
+        .cursive { font-family: 'Dancing Script', cursive; }
+
+        /* Sideways Letter Animation */
+        .envelope-wrapper {
+            position: relative;
+            width: 280px;
+            height: 180px;
+            perspective: 1000px;
+        }
+
+        .envelope-body {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 160px;
+            background: #e91e63;
+            border-radius: 0 0 12px 12px;
+            z-index: 10;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+
+        .envelope-flap {
+            position: absolute;
+            top: 20px;
+            width: 0; height: 0;
+            border-left: 140px solid transparent;
+            border-right: 140px solid transparent;
+            border-bottom: 100px solid #ad1457;
+            z-index: 5;
+            transition: transform 0.6s ease;
+            transform-origin: bottom;
+        }
+
+        .letter {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            width: 260px;
+            height: 200px;
+            background: #fffafa;
+            color: #2d3436;
+            padding: 25px;
+            border-radius: 8px;
+            z-index: 2;
+            transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            transform: translateX(0) scale(0.8);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .envelope-wrapper.open .letter { 
+            transform: translateX(120px) scale(1.1);
+            z-index: 15; 
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        @media (max-width: 600px) {
+            .envelope-wrapper.open .letter {
+                transform: translateX(0) translateY(-140px) scale(1.1);
+            }
+        }
+
+        .envelope-wrapper.open .envelope-flap { transform: rotateX(180deg); z-index: 1; }
+
+        .edge-glow {
+            position: fixed;
+            inset: 0;
+            box-shadow: inset 0 0 100px rgba(255, 105, 180, 0);
+            pointer-events: none;
+            z-index: 50;
+            transition: box-shadow 3s ease;
+        }
+
+        .screen-6-active .edge-glow {
+            box-shadow: inset 0 0 150px rgba(255, 105, 180, 0.6);
+            animation: pulse-glow 4s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            from { box-shadow: inset 0 0 100px rgba(255, 105, 180, 0.4); }
+            to { box-shadow: inset 0 0 200px rgba(255, 105, 180, 0.8); }
+        }
+
+        #flash {
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .checklist-item {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 10px 0;
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid transparent;
+        }
+        .checklist-item:hover { 
+            border-color: rgba(255, 105, 180, 0.4); 
+            background: rgba(255, 105, 180, 0.1);
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.1);
+        }
+    </style>
+</head>
+<body id="main-body">
+    <div class="edge-glow"></div>
+    <div id="star-container"></div>
+    <div id="flash"></div>
+
+    <div id="screen-1" class="screen active">
+        <h1 class="text-5xl mb-8 glow-text font-light tracking-tighter">Hey...</h1>
+        <p class="text-xl mb-14 text-gray-400 font-extralight italic">Just thought of making you feel special...<br>so here's something I made.</p>
+        <button onclick="startApp()" class="btn-glow px-12 py-5 rounded-full text-xs tracking-widest uppercase">Begin</button>
+    </div>
+
+    <div id="screen-2" class="screen">
+        <p class="text-2xl mb-12 glow-text font-light leading-relaxed">I hope your study is going well,<br>but still, for your response...<br>tell me how is it going?</p>
+        <div class="flex flex-col gap-5 w-80">
+            <button onclick="nextScreen(3)" class="btn-glow px-6 py-4 rounded-2xl">Yes, going well</button>
+            <button onclick="nextScreen(3)" class="btn-glow px-6 py-4 rounded-2xl">Yes, obv (I'm Asmita)</button>
+        </div>
+    </div>
+
+    <div id="screen-3" class="screen">
+        <div id="options-3" class="flex flex-col gap-6 w-80">
+            <button onclick="showWishes()" class="btn-glow px-6 py-5 rounded-2xl">Want to read about us?</button>
+            <button id="just-continue-btn" onclick="grumpyContinue()" class="btn-glow px-6 py-5 rounded-2xl">Just continue</button>
+        </div>
+        <div id="wishes-list" class="hidden flex flex-col items-center w-full">
+            <h2 class="text-2xl mb-8 glow-text font-light">5 things I always wished to do...</h2>
+            <div class="space-y-3 mb-12 w-full max-w-md">
+                <label class="checklist-item"><input type="checkbox" class="accent-pink-500 w-5 h-5"> <span class="font-light">Watch all sorts of movies with you</span></label>
+                <label class="checklist-item"><input type="checkbox" class="accent-pink-500 w-5 h-5"> <span class="font-light">Write songs for you</span></label>
+                <label class="checklist-item"><input type="checkbox" class="accent-pink-500 w-5 h-5"> <span class="font-light">Stare at you (ik it's creepy but you're beautiful)</span></label>
+                <label class="checklist-item"><input type="checkbox" class="accent-pink-500 w-5 h-5"> <span class="font-light">Hang out on a silent road with a sunset</span></label>
+                <label class="checklist-item"><input type="checkbox" class="accent-pink-500 w-5 h-5"> <span class="font-light">Listen to you all the time and be with you</span></label>
+            </div>
+            <button onclick="nextScreen(4)" class="btn-glow px-12 py-4 rounded-full font-semibold tracking-wider uppercase text-xs">Let's get to the point</button>
+        </div>
+    </div>
+
+    <div id="screen-4" class="screen">
+        <div id="letter-scene" class="flex flex-col items-center">
+            <div id="envelope-wrapper" class="envelope-wrapper">
+                <div class="envelope-flap"></div>
+                <div id="letter-content" class="letter flex flex-col justify-center text-center">
+                    <p id="letter-text" class="italic font-serif leading-relaxed text-sm"></p>
+                </div>
+                <div class="envelope-body"></div>
+            </div>
+            <button id="action-btn" onclick="handleLetterAction()" class="btn-glow px-12 py-4 rounded-full mt-24 text-sm tracking-widest uppercase">Open Letter</button>
+        </div>
+        <div id="secret-prompt" class="hidden">
+            <p class="text-2xl mb-12 text-pink-100 font-light">Do you want to know a secret?<br><span class="text-sm text-pink-300/60 uppercase tracking-widest">Promise you won't tell anyone...</span></p>
+            <button onclick="nextScreen(5)" class="btn-glow px-14 py-4 rounded-full font-bold tracking-widest">I PROMISE</button>
+        </div>
+    </div>
+
+    <div id="screen-5" class="screen">
+        <h1 class="cursive text-6xl md:text-8xl glow-text mb-24 text-pink-400">Mala Tu Khup Avadtes!!!</h1>
+        <div class="flex gap-10 items-center justify-center h-48 w-full relative">
+            <button onclick="finalExplosion()" class="btn-glow px-10 py-5 rounded-2xl text-lg">Ho, mala mahiti ahe</button>
+            <button id="run-away-btn" onmouseover="runAway()" class="btn-glow px-10 py-5 rounded-2xl text-lg">Ohhh</button>
+        </div>
+    </div>
+
+    <div id="screen-6" class="screen">
+        <h1 class="text-3xl md:text-5xl glow-text font-extralight italic leading-tight max-w-4xl px-8">
+            This is how my life changed and started glowing when you entered in it
+        </h1>
+    </div>
+
+    <script>
+        // MUSIC URL (Discord Link provided)
+        const AUDIO_URL = "https://cdn.discordapp.com/attachments/1398962016244203674/1470273395366170767/TAYLOR_SWIFT_SHAWN_MENDES_-_Lover_Remix_NRJ_EUROHOT_30_mp3.pm.mp3?ex=698ab24d&is=698960cd&hm=86746992cbf13a53a43405d21959249dba6e499fcc173b93245e95bca803ccc2&"; 
+        const bgMusic = new Audio(AUDIO_URL);
+        bgMusic.loop = true;
+
+        function startApp() {
+            if (AUDIO_URL) bgMusic.play().catch(e => console.log("Audio blocked"));
+            nextScreen(2);
+        }
+
+        function createStars() {
+            const container = document.getElementById('star-container');
+            for (let i = 0; i < 250; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 2.2;
+                const isPink = Math.random() > 0.65;
+                star.style.width = star.style.height = `${size}px`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.backgroundColor = isPink ? '#ff69b4' : '#fff';
+                star.style.setProperty('--duration', `${1.5 + Math.random() * 4}s`);
+                container.appendChild(star);
+            }
+        }
+        createStars();
+
+        let currentScreen = 1;
+        function nextScreen(num) {
+            document.getElementById(`screen-${currentScreen}`).classList.remove('active');
+            setTimeout(() => {
+                document.getElementById(`screen-${num}`).classList.add('active');
+                currentScreen = num;
+                if(num === 6) document.body.classList.add('screen-6-active');
+            }, 700);
+        }
+
+        function showWishes() {
+            document.getElementById('options-3').classList.add('hidden');
+            document.getElementById('wishes-list').classList.remove('hidden');
+        }
+
+        function grumpyContinue() {
+            const btn = document.getElementById('just-continue-btn');
+            btn.innerText = "1st see the 1st option 😒";
+            setTimeout(showWishes, 1600);
+        }
+
+        const letters = [
+            { title: "Happy Rose Day 🌹", text: "Here's a rose for the most beautiful person I've ever known." },
+            { title: "Happy Chocolate Day 🍫", text: "They say chocolates are the sweetest thing, but they clearly haven't met you yet. Stay sweet always!" },
+            { title: "Happy Teddy Day 🧸", text: "Teddies are as cute as you, and I wish I could give you one right now." },
+            { title: "Happy Valentine's Day ❤️", text: "I made something really stupid but with all my heart😭. I hope you would like it." }
+        ];
+        let letterIdx = 0;
+        let isLetterOpen = false;
+
+        function handleLetterAction() {
+            const wrapper = document.getElementById('envelope-wrapper');
+            const actionBtn = document.getElementById('action-btn');
+            const letterText = document.getElementById('letter-text');
+            if (!isLetterOpen) {
+                letterText.innerHTML = `<span class="font-semibold text-pink-600 block mb-3 text-lg">${letters[letterIdx].title}</span>${letters[letterIdx].text}`;
+                wrapper.classList.add('open');
+                actionBtn.innerText = "NEXT LETTER";
+                isLetterOpen = true;
+            } else {
+                wrapper.classList.remove('open');
+                isLetterOpen = false;
+                letterIdx++;
+                if (letterIdx < letters.length) {
+                    actionBtn.innerText = "OPEN LETTER";
+                } else {
+                    document.getElementById('letter-scene').classList.add('hidden');
+                    document.getElementById('secret-prompt').classList.remove('hidden');
+                }
+            }
+        }
+
+        function runAway() {
+            const btn = document.getElementById('run-away-btn');
+            const x = Math.random() * (window.innerWidth - btn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - btn.offsetHeight);
+            btn.style.position = 'fixed';
+            btn.style.left = x + 'px';
+            btn.style.top = y + 'px';
+        }
+
+        function finalExplosion() {
+            const flash = document.getElementById('flash');
+            flash.style.opacity = '1';
+            setTimeout(() => {
+                nextScreen(6);
+                flash.style.opacity = '0';
+                flash.style.transition = 'opacity 4s ease';
+                setTimeout(() => {
+                    document.getElementById('main-body').style.transition = 'filter 5s, opacity 5s';
+                    document.getElementById('main-body').style.filter = 'brightness(0)';
+                    document.getElementById('main-body').style.opacity = '0';
+                }, 7000);
+            }, 300);
+        }
+    </script>
+</body>
+</html>
+
